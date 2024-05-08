@@ -7,7 +7,9 @@ export default class Player
         this.game = game;
         this.x = this.game.width * 0.5;
         this.y = this.game.height * 0.5;
+        this.angle = 0;
         this.radius = 40;
+        this.target = [];
 
         this.image = new Image();
         this.image.src = "img/player.png";
@@ -15,16 +17,24 @@ export default class Player
 
     draw(context)
     {
-        context.drawImage(this.image, this.x - this.radius, this.y - this.radius);
+        context.save();
+        context.translate(this.x, this.y);
+        context.rotate(this.angle);
+        context.drawImage(this.image, -this.radius, -this.radius);
         context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        context.arc(0, 0, this.radius, 0, Math.PI * 2);
         context.stroke();
+        context.restore();
     }
 
     update(delta_time)
     {
         //this.x = this.game.point.x;
         //this.y = this.game.point.y;
+        this.target = this.game.trajectory(this.game.planet, this.game.point);
+        this.x = this.game.planet.x + (this.game.planet.radius + this.radius) * this.target[0];
+        this.y = this.game.planet.y + (this.game.planet.radius + this.radius) * this.target[1];
+        this.angle = Math.atan2(this.target[3], this.target[2]);
     }
 
     restart()

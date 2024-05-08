@@ -56,17 +56,17 @@ export default class Game
         this.planet.draw(context);
         this.player.draw(context);
 
-        context.beginPath();
+        /*context.beginPath();
         context.moveTo(this.planet.x, this.planet.y);
         context.lineTo(this.point.x, this.point.y);
-        context.stroke();
+        context.stroke();*/
         
         this.setGameText(context);
     }
 
     update(delta_time)
     {
-        //this.player.update(delta_time);
+        this.player.update(delta_time);
     }
 
     setGameText(context)
@@ -99,6 +99,12 @@ export default class Game
 
     trajectory(a, b)
     {
-        
+        const dx = a.x - b.x; // horizontal distance between a and b
+        const dy = a.y - b.y; // vertical distance between a and b
+        const distance = Math.hypot(dx, dy);
+        const aimX = dx / distance * -1; // horizontal direction between a and b
+        const aimY = dy / distance * -1; // vertical direction between a and b
+
+        return [aimX, aimY, dx, dy];
     }
 }
