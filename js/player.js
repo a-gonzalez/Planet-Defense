@@ -15,7 +15,7 @@ export default class Player
 
     draw(context)
     {
-        //context.drawImage(this.image, this.x - 100, this.y - 100);
+        context.drawImage(this.image, this.x - this.radius, this.y - this.radius);
         context.beginPath();
         context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         context.stroke();
@@ -23,8 +23,8 @@ export default class Player
 
     update(delta_time)
     {
-        this.x = this.game.point.x;
-        this.y = this.game.point.y;
+        //this.x = this.game.point.x;
+        //this.y = this.game.point.y;
     }
 
     restart()

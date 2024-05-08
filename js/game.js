@@ -66,7 +66,7 @@ export default class Game
 
     update(delta_time)
     {
-        this.player.update(delta_time);
+        //this.player.update(delta_time);
     }
 
     setGameText(context)
@@ -97,11 +97,8 @@ export default class Game
         this.player.restart();
     }
 
-    isAHit(enemy, projectile)
-    { // collision detection between two rectagles
-        return (enemy.x < projectile.x + projectile.width &&
-            enemy.x + enemy.width > projectile.x &&
-            enemy.y < projectile.y + projectile.height &&
-            enemy.y + enemy.height > projectile.y);
+    trajectory(a, b)
+    {
+        
     }
 }
