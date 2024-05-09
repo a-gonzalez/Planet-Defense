@@ -19,9 +19,9 @@ addEventListener("load", () =>
     let previous_stamp = 0;
 
     const animate = (time_stamp) =>
-    {
+    {// delta-time is the time it takes this computer to serve one animation frame
         const delta_time = time_stamp - previous_stamp;
-        previous_stamp = time_stamp;
+        previous_stamp = time_stamp; // approximately 60 fps
 
         context.clearRect(0, 0, screen.width, screen.height);
 

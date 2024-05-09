@@ -1,7 +1,7 @@
 import Planet from "./planet.js";
 import Player from "./player.js";
 import Point from "./point.js";
-
+import { Asteroid, Beetlemorph, Rhinomorph, Lobstamorph } from "./enemy.js";
 import Ammo from "./ammo.js";
 
 export default class Game
@@ -19,13 +19,24 @@ export default class Game
         this.keys = [];
         this.ammo = [];
         this.ammo_count = 10;
+        this.enemies = [];
+        this.enemy_count = 20;
+        this.enemy_timer = 0;
+        this.enemy_interval = 1700;
 
         this.planet = new Planet(this);
         this.player = new Player(this);
         this.point = new Point(0, 0);
         
+        this.createEnemyPool();
+        
+        //for (let index = 0; index < 5; index++)
+        //{
+            this.enemies[0].wake();
+        //}
+
         this.createAmmoPool();
-        this.restart();
+        //this.restart();
 
         /*addEventListener("keydown", (event) =>
         {
@@ -49,6 +60,10 @@ export default class Game
             if (event.key === "d")
             {
                 this.debug = !this.debug;
+            }
+            else if (event.key === " ")
+            {
+                this.player.shoot();
             }
         });
 
@@ -75,6 +90,11 @@ export default class Game
         {
             ammo.draw(context);
         });
+
+        this.enemies.forEach((enemy) =>
+        {
+            enemy.draw(context);
+        });
         /*context.beginPath();
         context.moveTo(this.planet.x, this.planet.y);
         context.lineTo(this.point.x, this.point.y);
@@ -90,7 +110,28 @@ export default class Game
         this.ammo.forEach((ammo) =>
         {
             ammo.update(delta_time);
-        })
+        });
+
+        this.enemies.forEach((enemy) =>
+        {
+            enemy.update(delta_time);
+        });
+
+        if (this.enemy_timer < this.enemy_interval)
+        {
+            this.enemy_timer += delta_time;
+        }
+        else
+        {
+            this.enemy_timer = 0;
+
+            const enemy = this.getEnemyFromPool();
+
+            if (enemy)
+            {
+                enemy.wake();
+            }
+        }
     }
 
     setGameText(context)
@@ -121,15 +162,23 @@ export default class Game
         this.player.restart();
     }
 
-    trajectory(a, b)
+    createEnemyPool()
     {
-        const dx = a.x - b.x; // horizontal distance between a and b
-        const dy = a.y - b.y; // vertical distance between a and b
-        const distance = Math.hypot(dx, dy);
-        const aimX = dx / distance * -1; // horizontal direction between a and b
-        const aimY = dy / distance * -1; // vertical direction between a and b
+        for (let index = 0; index < this.enemy_count; index++)
+        {
+            this.enemies.push(new Asteroid(this));
+        }
+    }
 
-        return [aimX, aimY, dx, dy];
+    getEnemyFromPool()
+    {
+        for (let index = 0; index < this.enemies.length; index++)
+        {
+            if (this.enemies[index].free === true)
+            {
+                return this.enemies[index];
+            }
+        }
     }
 
     createAmmoPool()
@@ -149,5 +198,26 @@ export default class Game
                 return this.ammo[index];
             }
         }
+    }
+
+    trajectory(a, b)
+    {
+        const dx = a.x - b.x; // horizontal distance between a and b
+        const dy = a.y - b.y; // vertical distance between a and b
+        const distance = Math.hypot(dx, dy);
+        const aimX = dx / distance * -1; // horizontal direction between a and b
+        const aimY = dy / distance * -1; // vertical direction between a and b
+
+        return [aimX, aimY, dx, dy];
+    }
+
+    isCollision(a, b)
+    {
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const distance = Math.hypot(dx, dy);
+        const sum = a.radius + b.radius;
+
+        return distance < sum;
     }
 }

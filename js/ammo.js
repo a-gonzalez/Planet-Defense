@@ -3,11 +3,11 @@ export default class Ammo
     constructor(game)
     {
         this.game = game;
-        this.x = 40;
-        this.y = 40;
-        this.speed_x = 0.5;
-        this.speed_y = 0.5;
-        this.speed_modifier = 4;
+        this.x = 0;
+        this.y = 0;
+        this.speed_x = 1;
+        this.speed_y = 1;
+        this.speed_modifier = 5;
         this.radius = 3;
         this.free = true;
     }
