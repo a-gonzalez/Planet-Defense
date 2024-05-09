@@ -5,6 +5,8 @@ body
 
 #screen
 {
+    /* cursor: url("/img/cursor.png"), auto; */
+    cursor: crosshair;
     border: 1px solid #ffffff;
     background: url("/img/background.png");
     position: absolute;

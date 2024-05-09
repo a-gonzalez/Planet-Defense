@@ -21,9 +21,13 @@ export default class Player
         context.translate(this.x, this.y);
         context.rotate(this.angle);
         context.drawImage(this.image, -this.radius, -this.radius);
-        context.beginPath();
-        context.arc(0, 0, this.radius, 0, Math.PI * 2);
-        context.stroke();
+        
+        if (this.game.debug === true)
+        {
+            context.beginPath();
+            context.arc(0, 0, this.radius, 0, Math.PI * 2);
+            context.stroke();
+        }
         context.restore();
     }
 
@@ -41,5 +45,17 @@ export default class Player
     {
         this.x = this.game.width * 0.5;
         this.y = this.game.height * 0.5;
+        this.angle = 0;
+        this.target = [];
+    }
+
+    shoot()
+    {
+        const ammo = this.game.getAmmoFromPool();
+
+        if (ammo)
+        {
+            ammo.wake(this.x + this.radius * this.target[0], this.y + this.radius * this.target[1], this.target[0], this.target[1]);
+        }
     }
 }

@@ -16,8 +16,12 @@ export default class Planet
     draw(context)
     {
         context.drawImage(this.image, this.x - 100, this.y - 100);
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        context.stroke();
+
+        if (this.game.debug === true)
+        {
+            context.beginPath();
+            context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            context.stroke();
+        }
     }
 }

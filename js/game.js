@@ -2,6 +2,8 @@ import Planet from "./planet.js";
 import Player from "./player.js";
 import Point from "./point.js";
 
+import Ammo from "./ammo.js";
+
 export default class Game
 {
     constructor(screen)
@@ -12,14 +14,17 @@ export default class Game
         this.width = this.screen.width;
         this.height = this.screen.height;
         this.game_over = false;
-        this.game_debug = false;
+        this.debug = false;
         this.score = 0;
         this.keys = [];
+        this.ammo = [];
+        this.ammo_count = 10;
 
         this.planet = new Planet(this);
         this.player = new Player(this);
         this.point = new Point(0, 0);
         
+        this.createAmmoPool();
         this.restart();
 
         /*addEventListener("keydown", (event) =>
@@ -33,15 +38,19 @@ export default class Game
             {
                 this.restart();
             }
-        });
+        });*/
 
         addEventListener("keyup", (event) =>
         {
-            if (this.keys.indexOf(event.key) > -1)
+            /*if (this.keys.indexOf(event.key) > -1)
             {
                 this.keys.splice(index, 1);
+            }*/
+            if (event.key === "d")
+            {
+                this.debug = !this.debug;
             }
-        });*/
+        });
 
         addEventListener("mousemove", (event) =>
         {
@@ -49,6 +58,12 @@ export default class Game
             this.point.y = event.offsetY;
         });
 
+        addEventListener("mousedown", (event) =>
+        {
+            this.point.x = event.offsetX;
+            this.point.y = event.offsetY;
+            this.player.shoot();
+        });
     }
 
     draw(context)
@@ -56,6 +71,10 @@ export default class Game
         this.planet.draw(context);
         this.player.draw(context);
 
+        this.ammo.forEach((ammo) =>
+        {
+            ammo.draw(context);
+        });
         /*context.beginPath();
         context.moveTo(this.planet.x, this.planet.y);
         context.lineTo(this.point.x, this.point.y);
@@ -67,6 +86,11 @@ export default class Game
     update(delta_time)
     {
         this.player.update(delta_time);
+
+        this.ammo.forEach((ammo) =>
+        {
+            ammo.update(delta_time);
+        })
     }
 
     setGameText(context)
@@ -106,5 +130,24 @@ export default class Game
         const aimY = dy / distance * -1; // vertical direction between a and b
 
         return [aimX, aimY, dx, dy];
+    }
+
+    createAmmoPool()
+    {
+        for (let index = 0; index < this.ammo_count; index++)
+        {
+            this.ammo.push(new Ammo(this));
+        }
+    }
+
+    getAmmoFromPool()
+    {
+        for (let index = 0; index < this.ammo.length; index++)
+        {
+            if (this.ammo[index].free === true)
+            {
+                return this.ammo[index];
+            }
+        }
     }
 }
