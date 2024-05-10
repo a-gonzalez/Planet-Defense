@@ -16,52 +16,34 @@ export default class Game
         this.game_over = false;
         this.debug = false;
         this.score = 0;
-        this.keys = [];
+        this.score_win = 30;
         this.ammo = [];
-        this.ammo_count = 10;
+        this.ammo_count = 20;
         this.enemies = [];
-        this.enemy_count = 20;
+        this.enemy_count = 10;
         this.enemy_timer = 0;
-        this.enemy_interval = 1700;
+        this.enemy_interval = 1000;
+        this.sprite_update = false;
+        this.sprite_timer = 0;
+        this.sprite_interval = 150;
+        this.lives = 3;
+        this.lives_max = 5;
 
         this.planet = new Planet(this);
         this.player = new Player(this);
         this.point = new Point(0, 0);
         
         this.createEnemyPool();
-        
-        //for (let index = 0; index < 5; index++)
-        //{
-            this.enemies[0].wake();
-        //}
-
         this.createAmmoPool();
         //this.restart();
 
-        /*addEventListener("keydown", (event) =>
-        {
-            if (this.keys.indexOf(event.key) === -1 && this.game_over === false)
-            {
-                this.keys.push(event.key);
-            }
-
-            if (event.key === "R" && this.game_over === true)
-            {
-                this.restart();
-            }
-        });*/
-
         addEventListener("keyup", (event) =>
         {
-            /*if (this.keys.indexOf(event.key) > -1)
-            {
-                this.keys.splice(index, 1);
-            }*/
             if (event.key === "d")
             {
                 this.debug = !this.debug;
             }
-            else if (event.key === " ")
+            else if (event.key === " " && this.game_over === false)
             {
                 this.player.shoot();
             }
@@ -77,13 +59,18 @@ export default class Game
         {
             this.point.x = event.offsetX;
             this.point.y = event.offsetY;
-            this.player.shoot();
+
+            if (this.game_over === false)
+            {
+                this.player.shoot();
+            }
         });
     }
 
     draw(context)
     {
         this.planet.draw(context);
+
         this.player.draw(context);
 
         this.ammo.forEach((ammo) =>
@@ -95,12 +82,12 @@ export default class Game
         {
             enemy.draw(context);
         });
+
+        this.setGameText(context);
         /*context.beginPath();
         context.moveTo(this.planet.x, this.planet.y);
         context.lineTo(this.point.x, this.point.y);
         context.stroke();*/
-        
-        this.setGameText(context);
     }
 
     update(delta_time)
@@ -117,39 +104,82 @@ export default class Game
             enemy.update(delta_time);
         });
 
-        if (this.enemy_timer < this.enemy_interval)
+        if (this.game_over === false)
         {
-            this.enemy_timer += delta_time;
+            if (this.enemy_timer < this.enemy_interval)
+            {// enemy spawn timer
+                this.enemy_timer += delta_time;
+            }
+            else
+            {
+                this.enemy_timer = 0;
+
+                const enemy = this.getEnemyFromPool();
+
+                if (enemy)
+                {
+                    enemy.wake();
+                }
+            }
+        }
+
+        if (this.sprite_timer < this.sprite_interval)
+        {
+            this.sprite_timer += delta_time;
+            this.sprite_update = false;
         }
         else
         {
-            this.enemy_timer = 0;
+            this.sprite_timer = 0;
+            this.sprite_update = true;
+        }
 
-            const enemy = this.getEnemyFromPool();
-
-            if (enemy)
-            {
-                enemy.wake();
-            }
+        if (this.lives < 1)
+        {
+            this.game_over = true;
         }
     }
 
     setGameText(context)
     {
-        context.fillText(`Score  ${this.score}`, 20, 40);
+        context.fillText(`Score  ${this.score}`, 10, 30);
+        context.fillText("Lives", 10, 65);
+
+        for (let index = 0; index < this.lives_max; index++)
+        {
+            context.strokeRect(90 + 15 * index, 50, 10, 15);
+        }
+
+        for (let index = 0; index < this.lives; index++)
+        {
+            context.fillRect(90 + 15 * index, 50, 10, 15);
+        }
 
         if (this.game_over === true)
         {
             context.save();
-            context.shadowOffsetX = 5;
-            context.shadowOffsetY = 5;
+            context.shadowOffsetX = 3;
+            context.shadowOffsetY = 3;
             context.shadowColor = "#000000";
             context.textAlign = "center";
             context.font = "80px space shards";
             context.fillStyle = "#ff0000";
-            context.fillText("Game Over!", this.width * 0.5, this.height * 0.5);
-            context.font = "25px arial";
-            context.fillText("Press R To Restart.", this.width * 0.5, this.height * 0.5 + 35);
+            context.fillText("Game Over!", this.width * 0.5, 250);
+            
+            if (this.score >= this.score_win)
+            {
+                context.fillStyle = "#ffd700";
+                context.font = "35px space shards";
+                context.fillText("You Win!", 160, this.height * 0.5);
+                context.fillText(`Score ${this.score}`, 600, this.height * 0.5);
+            }
+            else
+            {
+                context.font = "35px space shards";
+                context.fillText("You Lose!", 160, this.height * 0.5);
+                context.fillText("Try Again.", 600, this.height * 0.5);
+            }
+            //context.fillText("Press R To Restart.", this.width * 0.5, 500);
             context.restore();
         }
     }
@@ -166,7 +196,24 @@ export default class Game
     {
         for (let index = 0; index < this.enemy_count; index++)
         {
-            this.enemies.push(new Asteroid(this));
+            let roll = Math.random();
+
+            if (roll < 0.25)
+            {
+                this.enemies.push(new Asteroid(this));
+            }
+            else if (roll < 0.5)
+            {
+                this.enemies.push(new Beetlemorph(this));
+            }
+            else if (roll < 0.75)
+            {
+                this.enemies.push(new Rhinomorph(this));
+            }
+            else
+            {
+                this.enemies.push(new Lobstamorph(this));
+            }
         }
     }
 

@@ -7,6 +7,8 @@ export default class Player
         this.game = game;
         this.x = this.game.width * 0.5;
         this.y = this.game.height * 0.5;
+        this.lives = 3;
+        this.lives_max = 5;
         this.angle = 0;
         this.radius = 40;
         this.target = [];
